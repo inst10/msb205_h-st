@@ -1,0 +1,7 @@
+---
+title: "Forelesning"
+format: html
+editor: visual
+---
+
+## GeoDa
