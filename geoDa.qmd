@@ -3,5 +3,18 @@ title: "Forelesning"
 format: html
 editor: visual
 ---
+```{r}
+#l label: setup 
+library(tidyverse)
+library(sf)
+```
 
-## GeoDa
+```{r}
+HgsdOgOmegn <- read_sf("maps/HgsdOgOmegn.gpkg")
+HgsdOgOmegn |> 
+  select(knavn)
+  plot(graticule = TRUE, axes = TRUE, key.pos = 1)
+```
+
+
+
