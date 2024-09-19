@@ -8,6 +8,10 @@ editor: visual
 #l label: setup 
 library(tidyverse)
 library(sf)
+library(mapview)
+library(rmapshaper)
+library(rnaturalearth)
+library(rnaturaleartdata)
 ```
 
 ```{r}
@@ -15,4 +19,73 @@ HgsdOgOmegn <- read_sf("maps/HgsdOgOmegn.gpkg")
 HgsdOgOmegn |> 
   select(knavn) |> 
   plot(graticule = TRUE, axes = TRUE, key.pos = 1)
+```
+
+```{r}
+HgsdOgOmegn %>% 
+  select(knavn) %>% 
+  mapview(
+    legend = TRUE,
+    col.regions = sf.colors,
+    alpha.regions = 0.2
+    )
+```
+
+```{r}
+HgsdOgOmegn %>% 
+  ggplot() + 
+  geom_sf(aes(fill = knavn))
+```
+
+```{r}
+#| paged.print: false
+HgsdOgOmegnSimp <- HgsdOgOmegn %>% 
+  select(knavn) %>% 
+  # keep_shapes = TRUE else we 
+  # risk to loose islands
+  # keep 5% of the points
+  ms_simplify(
+    keep = 0.05, 
+    keep_shapes = TRUE) 
+
+HgsdOgOmegnSimp %>% 
+  ggplot() + # Note + for ggplot
+  geom_sf(aes(fill = knavn))
+ 
+round(object.size(HgsdOgOmegn) / 1024)
+round(
+  object.size(HgsdOgOmegnSimp) / 1024
+  )
+
+HgsdOgOmegnSimp
+```
+
+```{r}
+st_axis_order(authority_compliant = TRUE)
+world_ne <- ne_countries(scale = "medium", returnclass = "sf")  %>% 
+  select(continent) 
+```
+
+```{r}
+crs_wintri <- "+proj=wintri +datum=WGS84 +no_defs +over"
+world_wintri <- world_ne %>% 
+#  st_transform(4326) %>%
+#  st_transform(pipeline ="+proj=pipeline +step +proj=axisswap +order=2,1") %>% 
+  st_transform_proj(crs = crs_wintri)
+```
+
+```{r}
+grat_wintri <- 
+  st_graticule(lat = c(-89.9, seq(-80, 80, 20), 89.9)) %>%
+  st_transform_proj(crs = crs_wintri) 
+```
+
+```{r}
+grat_wintri %>% 
+  ggplot() + 
+  geom_sf(
+    color = "gray30", 
+    size = 0.25/.pt
+    ) + 
+  coord_sf(datum = NULL)
 ```
